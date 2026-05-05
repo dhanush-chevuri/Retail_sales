@@ -1,0 +1,36 @@
+2026-05-05 12:32:49,050 - RetailETL - ERROR - Failed to initialize database: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-05-05 12:33:45,742 - RetailETL - ERROR - Failed to initialize database: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-05-05 12:34:04,920 - RetailETL - ERROR - Failed to initialize database: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-05-05 12:34:13,483 - RetailETL - ERROR - Failed to initialize database: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-05-05 12:34:29,168 - RetailETL - ERROR - Failed to initialize database: 2003 (HY000): Can't connect to MySQL server on 'localhost:3306' (10061)
+2026-05-05 12:51:02,018 - RetailETL - INFO - Tables created successfully.
+2026-05-05 12:51:02,020 - RetailETL - INFO - Database retail_db initialized successfully.
+2026-05-05 12:51:02,021 - RetailETL - INFO - DB Initialization triggered from UI.
+2026-05-05 12:51:17,514 - RetailETL - INFO - ETL - EXTRACT: Starting load into bronze_sales (102 rows).
+2026-05-05 12:51:17,644 - RetailETL - INFO - ETL - EXTRACT: Complete.
+2026-05-05 12:51:25,087 - RetailETL - INFO - ETL PIPELINE: Full run started.
+2026-05-05 12:51:25,087 - RetailETL - INFO - ETL - TRANSFORM (Silver): Starting...
+2026-05-05 12:51:25,193 - RetailETL - WARNING - Dropped 12 rows with missing unit_price.
+2026-05-05 12:51:25,196 - RetailETL - WARNING - Dropped 8 rows with invalid (negative/zero) quantity.
+2026-05-05 12:51:25,215 - RetailETL - WARNING - Dropped 62 rows with invalid date formats.
+2026-05-05 12:51:25,240 - RetailETL - INFO - ETL - LOAD (Silver): Saving 19 records.
+2026-05-05 12:51:25,429 - RetailETL - INFO - ETL - LOAD (Dropped): Saving 83 dropped records.
+2026-05-05 12:51:25,523 - RetailETL - INFO - ETL - LOAD (Dropped): Complete.
+2026-05-05 12:51:25,524 - RetailETL - INFO - ETL - TRANSFORM (Silver): Complete.
+2026-05-05 12:51:25,524 - RetailETL - INFO - ETL - TRANSFORM (Gold): Starting aggregation...
+2026-05-05 12:51:25,842 - RetailETL - INFO - ETL - TRANSFORM (Gold): Complete.
+2026-05-05 12:51:25,842 - RetailETL - INFO - ETL PIPELINE: Successfully finished.
+2026-05-05 13:01:07,444 - RetailETL - INFO - ETL - EXTRACT: Starting load into bronze_sales (203 rows).
+2026-05-05 13:01:07,596 - RetailETL - INFO - ETL - EXTRACT: Complete.
+2026-05-05 13:01:12,773 - RetailETL - INFO - ETL PIPELINE: Full run started.
+2026-05-05 13:01:12,774 - RetailETL - INFO - ETL - TRANSFORM (Silver): Starting...
+2026-05-05 13:01:12,841 - RetailETL - WARNING - Dropped 13 rows with missing unit_price.
+2026-05-05 13:01:12,844 - RetailETL - WARNING - Dropped 12 rows with invalid (negative/zero) quantity.
+2026-05-05 13:01:12,854 - RetailETL - WARNING - Dropped 42 rows with invalid date formats.
+2026-05-05 13:01:12,866 - RetailETL - INFO - ETL - LOAD (Silver): Saving 135 records.
+2026-05-05 13:01:13,076 - RetailETL - INFO - ETL - LOAD (Dropped): Saving 68 dropped records.
+2026-05-05 13:01:13,145 - RetailETL - INFO - ETL - LOAD (Dropped): Complete.
+2026-05-05 13:01:13,146 - RetailETL - INFO - ETL - TRANSFORM (Silver): Complete.
+2026-05-05 13:01:13,146 - RetailETL - INFO - ETL - TRANSFORM (Gold): Starting aggregation...
+2026-05-05 13:01:13,362 - RetailETL - INFO - ETL - TRANSFORM (Gold): Complete.
+2026-05-05 13:01:13,362 - RetailETL - INFO - ETL PIPELINE: Successfully finished.

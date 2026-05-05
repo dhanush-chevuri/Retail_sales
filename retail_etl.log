@@ -1,0 +1,56 @@
+2026-04-08 12:02:17,029 - RetailETL - INFO - Starting Headless ETL Test...
+2026-04-08 12:02:17,218 - mysql.connector - INFO - package: mysql.connector.plugins
+2026-04-08 12:02:17,218 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2026-04-08 12:02:17,218 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2026-04-08 12:02:17,233 - RetailETL - ERROR - Failed to initialize database: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2026-04-08 12:02:17,235 - RetailETL - ERROR - DB Init Failed: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2026-04-08 12:04:38,397 - mysql.connector - INFO - package: mysql.connector.plugins
+2026-04-08 12:04:38,397 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2026-04-08 12:04:38,397 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2026-04-08 12:05:52,133 - mysql.connector - INFO - package: mysql.connector.plugins
+2026-04-08 12:05:52,134 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2026-04-08 12:05:52,135 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2026-04-08 12:06:24,721 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:06:24,844 - RetailETL - ERROR - Bronze load failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-08 12:08:03,570 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:08:03,677 - RetailETL - ERROR - Bronze load failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-08 12:08:05,381 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:08:05,511 - RetailETL - ERROR - Bronze load failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-08 12:08:14,185 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:08:14,311 - RetailETL - ERROR - Bronze load failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-08 12:08:37,899 - mysql.connector - INFO - package: mysql.connector.plugins
+2026-04-08 12:08:37,900 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2026-04-08 12:08:37,900 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
+2026-04-08 12:08:50,377 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:08:50,502 - RetailETL - ERROR - Bronze load failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-08 12:09:31,346 - RetailETL - INFO - Tables created successfully.
+2026-04-08 12:09:31,346 - RetailETL - INFO - Database retail_db initialized successfully.
+2026-04-08 12:09:51,655 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:10:06,810 - RetailETL - INFO - Starting Silver transformation...
+2026-04-08 12:10:07,014 - RetailETL - INFO - Loading 1053 cleaned rows into silver_sales.
+2026-04-08 12:10:07,145 - RetailETL - ERROR - Silver transformation failed: (mysql.connector.errors.ProgrammingError) 1170 (42000): BLOB/TEXT column 'order_id' used in key specification without a key length
+[SQL: ALTER TABLE silver_sales ADD PRIMARY KEY (order_id)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-08 12:11:59,479 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:11:59,605 - RetailETL - ERROR - Bronze load failed: (mysql.connector.errors.ProgrammingError) 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-08 12:12:08,054 - RetailETL - INFO - Tables created successfully.
+2026-04-08 12:12:08,055 - RetailETL - INFO - Database retail_db initialized successfully.
+2026-04-08 12:12:09,485 - RetailETL - INFO - Loading 1200 rows into bronze_sales.
+2026-04-08 12:12:15,701 - RetailETL - INFO - Starting Silver transformation...
+2026-04-08 12:12:15,945 - RetailETL - INFO - Loading 1053 cleaned rows into silver_sales.
+2026-04-08 12:12:16,229 - RetailETL - INFO - Starting Gold transformation...
+2026-04-08 12:12:16,473 - RetailETL - INFO - Gold tables updated.
+2026-04-08 12:17:47,595 - RetailETL - INFO - Loading 520 rows into bronze_sales.
+2026-04-08 12:17:52,854 - RetailETL - INFO - Starting Silver transformation...
+2026-04-08 12:17:53,081 - RetailETL - INFO - Loading 1400 cleaned rows into silver_sales.
+2026-04-08 12:17:53,434 - RetailETL - INFO - Starting Gold transformation...
+2026-04-08 12:17:53,657 - RetailETL - INFO - Gold tables updated.
+2026-04-08 12:19:46,202 - mysql.connector - INFO - package: mysql.connector.plugins
+2026-04-08 12:19:46,204 - mysql.connector - INFO - plugin_name: caching_sha2_password
+2026-04-08 12:19:46,205 - mysql.connector - INFO - AUTHENTICATION_PLUGIN_CLASS: MySQLCachingSHA2PasswordAuthPlugin
