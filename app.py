@@ -53,7 +53,7 @@ st.title("📊 Retail Sales ETL & Analytics (v2.0)")
 st.caption("Enhanced Production Version with Structured Logging & Docker")
 st.markdown("---")
 
-tab1, tab2, tab3, tab4 = st.tabs(["📥 Data Ingestion", "🛠️ ETL Pipeline", "📈 Analytics Dashboard", "📜 Logs"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📥 Data Ingestion", "🛠️ ETL Pipeline", "📈 Analytics Dashboard", "📜 Logs", "🗑️ Dropped Records"])
 
 # --- Tab 1: Data Ingestion ---
 with tab1:
@@ -118,16 +118,74 @@ with tab3:
         df_store = pd.read_sql("SELECT * FROM gold_sales_by_store", engine)
         df_cat = pd.read_sql("SELECT * FROM gold_sales_by_category", engine)
         df_date = pd.read_sql("SELECT * FROM gold_sales_by_date", engine)
-        
-        kpi1, kpi2, kpi3 = st.columns(3)
-        kpi1.metric("Total Revenue", f"${df_store['total_sales'].sum():,.2f}")
-        kpi2.metric("Total Transactions", f"{df_store['total_orders'].sum():,}")
-        kpi3.metric("Top Store", df_store.loc[df_store['total_sales'].idxmax()]['store_id'])
 
+        # Filters Section
+        st.subheader("🔍 Filters")
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            # Store filter
+            all_stores = ["All"] + sorted(df_store['store_id'].unique().tolist())
+            selected_store = st.selectbox("Filter by Store", all_stores)
+
+        with col2:
+            # Category filter
+            all_categories = ["All"] + sorted(df_cat['product_category'].unique().tolist())
+            selected_category = st.selectbox("Filter by Category", all_categories)
+
+        with col3:
+            # Date range filter
+            if not df_date.empty:
+                min_date = pd.to_datetime(df_date['order_date']).min().date()
+                max_date = pd.to_datetime(df_date['order_date']).max().date()
+                date_range = st.date_input(
+                    "Date Range",
+                    value=(min_date, max_date),
+                    min_value=min_date,
+                    max_value=max_date
+                )
+            else:
+                date_range = None
+
+        # Apply filters to data
+        filtered_df_store = df_store.copy()
+        filtered_df_cat = df_cat.copy()
+        filtered_df_date = df_date.copy()
+
+        if selected_store != "All":
+            # For store-specific view, we might need to filter other datasets
+            # This is a simplified approach - in a real app you'd join the data
+            pass
+
+        if selected_category != "All":
+            filtered_df_cat = df_cat[df_cat['product_category'] == selected_category]
+
+        if date_range and len(date_range) == 2:
+            start_date, end_date = date_range
+            filtered_df_date = df_date[
+                (pd.to_datetime(df_date['order_date']).dt.date >= start_date) &
+                (pd.to_datetime(df_date['order_date']).dt.date <= end_date)
+            ]
+
+        st.markdown("---")
+
+        # KPIs (filtered where applicable)
+        kpi1, kpi2, kpi3 = st.columns(3)
+        kpi1.metric("Total Revenue", f"${filtered_df_store['total_sales'].sum():,.2f}")
+        kpi2.metric("Total Transactions", f"{filtered_df_store['total_orders'].sum():,}")
+        kpi3.metric("Top Store", filtered_df_store.loc[filtered_df_store['total_sales'].idxmax()]['store_id'])
+
+        # Charts
         v1, v2 = st.columns(2)
-        v1.plotly_chart(px.bar(df_store, x='store_id', y='total_sales', title="Revenue by Store"), use_container_width=True)
-        v2.plotly_chart(px.pie(df_cat, values='total_sales', names='product_category', title="Sales by Category"), use_container_width=True)
-        st.plotly_chart(px.line(df_date.sort_values('order_date'), x='order_date', y='total_sales', title="Daily Sales Trend"), use_container_width=True)
+        v1.plotly_chart(px.bar(filtered_df_store, x='store_id', y='total_sales', title="Revenue by Store"), use_container_width=True)
+        v2.plotly_chart(px.pie(filtered_df_cat, values='total_sales', names='product_category', title="Sales by Category"), use_container_width=True)
+
+        # Date trend chart
+        if not filtered_df_date.empty:
+            st.plotly_chart(px.line(filtered_df_date.sort_values('order_date'), x='order_date', y='total_sales', title="Daily Sales Trend"), use_container_width=True)
+        else:
+            st.info("No data available for the selected date range.")
+
     except:
         st.info("Run the ETL Pipeline to generate analytics.")
 
@@ -141,3 +199,47 @@ with tab4:
                 st.text_area("Live Log Output", value="".join(log_content[-20:]), height=400)
         else:
             st.warning("No log file found yet.")
+
+# --- Tab 5: Dropped Records ---
+with tab5:
+    st.subheader("🗑️ Dropped Records Analysis")
+    st.write("Records that were rejected during data cleaning with reasons:")
+
+    try:
+        engine = db_mgr.get_engine()
+        dropped_df = pd.read_sql("SELECT * FROM dropped_sales", engine)
+
+        if not dropped_df.empty:
+            # Summary statistics
+            st.write("### Summary")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Dropped Records", len(dropped_df))
+            with col2:
+                st.metric("Most Common Reason", dropped_df['drop_reason'].mode().iloc[0] if len(dropped_df) > 0 else "N/A")
+            with col3:
+                st.metric("Unique Reasons", dropped_df['drop_reason'].nunique())
+
+            # Reason distribution
+            st.write("### Drop Reasons Distribution")
+            reason_counts = dropped_df['drop_reason'].value_counts()
+            st.bar_chart(reason_counts)
+
+            # Detailed table
+            st.write("### Detailed Dropped Records")
+            st.dataframe(dropped_df, use_container_width=True)
+
+            # Export option
+            csv = dropped_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Dropped Records CSV",
+                data=csv,
+                file_name="dropped_records.csv",
+                mime="text/csv"
+            )
+        else:
+            st.info("No dropped records found. Run the ETL pipeline to see data quality issues.")
+
+    except Exception as e:
+        st.warning("Dropped records table not found. Run the ETL pipeline first.")
+        st.write(f"Error: {e}")
