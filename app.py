@@ -115,78 +115,112 @@ with tab2:
 with tab3:
     try:
         engine = db_mgr.get_engine()
-        df_store = pd.read_sql("SELECT * FROM gold_sales_by_store", engine)
-        df_cat = pd.read_sql("SELECT * FROM gold_sales_by_category", engine)
-        df_date = pd.read_sql("SELECT * FROM gold_sales_by_date", engine)
 
-        # Filters Section
-        st.subheader("🔍 Filters")
-        col1, col2, col3 = st.columns(3)
+        # Get raw silver data for dynamic filtering
+        df_silver = pd.read_sql("SELECT * FROM silver_sales", engine)
 
-        with col1:
-            # Store filter
-            all_stores = ["All"] + sorted(df_store['store_id'].unique().tolist())
-            selected_store = st.selectbox("Filter by Store", all_stores)
+        if df_silver.empty:
+            st.info("No silver data available. Run the ETL Pipeline first.")
+        else:
+            # Filters Section
+            st.subheader("🔍 Filters")
+            col1, col2, col3 = st.columns(3)
 
-        with col2:
-            # Category filter
-            all_categories = ["All"] + sorted(df_cat['product_category'].unique().tolist())
-            selected_category = st.selectbox("Filter by Category", all_categories)
+            with col1:
+                # Store filter
+                all_stores = ["All"] + sorted(df_silver['store_id'].unique().tolist())
+                selected_store = st.selectbox("Filter by Store", all_stores)
 
-        with col3:
-            # Date range filter
-            if not df_date.empty:
-                min_date = pd.to_datetime(df_date['order_date']).min().date()
-                max_date = pd.to_datetime(df_date['order_date']).max().date()
+            with col2:
+                # Category filter
+                all_categories = ["All"] + sorted(df_silver['product_category'].unique().tolist())
+                selected_category = st.selectbox("Filter by Category", all_categories)
+
+            with col3:
+                # Date range filter
+                min_date = pd.to_datetime(df_silver['order_date']).min().date()
+                max_date = pd.to_datetime(df_silver['order_date']).max().date()
                 date_range = st.date_input(
                     "Date Range",
                     value=(min_date, max_date),
                     min_value=min_date,
                     max_value=max_date
                 )
+
+            # Apply filters to raw data
+            filtered_df = df_silver.copy()
+
+            if selected_store != "All":
+                filtered_df = filtered_df[filtered_df['store_id'] == selected_store]
+
+            if selected_category != "All":
+                filtered_df = filtered_df[filtered_df['product_category'] == selected_category]
+
+            if date_range and len(date_range) == 2:
+                start_date, end_date = date_range
+                filtered_df = filtered_df[
+                    (pd.to_datetime(filtered_df['order_date']).dt.date >= start_date) &
+                    (pd.to_datetime(filtered_df['order_date']).dt.date <= end_date)
+                ]
+
+            # Create dynamic aggregations from filtered data
+            if not filtered_df.empty:
+                # Store aggregation
+                df_store_filtered = filtered_df.groupby('store_id').agg({
+                    'total_amount': 'sum',
+                    'order_id': 'count'
+                }).reset_index().rename(columns={
+                    'total_amount': 'total_sales',
+                    'order_id': 'total_orders'
+                })
+
+                # Category aggregation
+                df_cat_filtered = filtered_df.groupby('product_category').agg({
+                    'total_amount': 'sum'
+                }).reset_index().rename(columns={'total_amount': 'total_sales'})
+
+                # Date aggregation
+                df_date_filtered = filtered_df.groupby(filtered_df['order_date'].dt.date).agg({
+                    'total_amount': 'sum'
+                }).reset_index().rename(columns={
+                    'order_date': 'order_date',
+                    'total_amount': 'total_sales'
+                })
+
+                st.markdown("---")
+
+                # KPIs from filtered data
+                kpi1, kpi2, kpi3 = st.columns(3)
+                kpi1.metric("Total Revenue", f"${df_store_filtered['total_sales'].sum():,.2f}")
+                kpi2.metric("Total Transactions", f"{df_store_filtered['total_orders'].sum():,}")
+                if not df_store_filtered.empty:
+                    top_store = df_store_filtered.loc[df_store_filtered['total_sales'].idxmax()]['store_id']
+                    kpi3.metric("Top Store", top_store)
+                else:
+                    kpi3.metric("Top Store", "N/A")
+
+                # Charts from filtered data
+                v1, v2 = st.columns(2)
+                if not df_store_filtered.empty:
+                    v1.plotly_chart(px.bar(df_store_filtered, x='store_id', y='total_sales', title="Revenue by Store"), use_container_width=True)
+                else:
+                    v1.info("No store data for selected filters")
+
+                if not df_cat_filtered.empty:
+                    v2.plotly_chart(px.pie(df_cat_filtered, values='total_sales', names='product_category', title="Sales by Category"), use_container_width=True)
+                else:
+                    v2.info("No category data for selected filters")
+
+                # Date trend chart
+                if not df_date_filtered.empty:
+                    st.plotly_chart(px.line(df_date_filtered.sort_values('order_date'), x='order_date', y='total_sales', title="Daily Sales Trend"), use_container_width=True)
+                else:
+                    st.info("No date data for selected filters")
             else:
-                date_range = None
+                st.warning("No data matches the selected filters. Try adjusting your filter criteria.")
 
-        # Apply filters to data
-        filtered_df_store = df_store.copy()
-        filtered_df_cat = df_cat.copy()
-        filtered_df_date = df_date.copy()
-
-        if selected_store != "All":
-            # For store-specific view, we might need to filter other datasets
-            # This is a simplified approach - in a real app you'd join the data
-            pass
-
-        if selected_category != "All":
-            filtered_df_cat = df_cat[df_cat['product_category'] == selected_category]
-
-        if date_range and len(date_range) == 2:
-            start_date, end_date = date_range
-            filtered_df_date = df_date[
-                (pd.to_datetime(df_date['order_date']).dt.date >= start_date) &
-                (pd.to_datetime(df_date['order_date']).dt.date <= end_date)
-            ]
-
-        st.markdown("---")
-
-        # KPIs (filtered where applicable)
-        kpi1, kpi2, kpi3 = st.columns(3)
-        kpi1.metric("Total Revenue", f"${filtered_df_store['total_sales'].sum():,.2f}")
-        kpi2.metric("Total Transactions", f"{filtered_df_store['total_orders'].sum():,}")
-        kpi3.metric("Top Store", filtered_df_store.loc[filtered_df_store['total_sales'].idxmax()]['store_id'])
-
-        # Charts
-        v1, v2 = st.columns(2)
-        v1.plotly_chart(px.bar(filtered_df_store, x='store_id', y='total_sales', title="Revenue by Store"), use_container_width=True)
-        v2.plotly_chart(px.pie(filtered_df_cat, values='total_sales', names='product_category', title="Sales by Category"), use_container_width=True)
-
-        # Date trend chart
-        if not filtered_df_date.empty:
-            st.plotly_chart(px.line(filtered_df_date.sort_values('order_date'), x='order_date', y='total_sales', title="Daily Sales Trend"), use_container_width=True)
-        else:
-            st.info("No data available for the selected date range.")
-
-    except:
+    except Exception as e:
+        st.error(f"Error loading analytics: {e}")
         st.info("Run the ETL Pipeline to generate analytics.")
 
 # --- Tab 4: Logs ---
